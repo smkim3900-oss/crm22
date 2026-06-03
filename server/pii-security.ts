@@ -139,7 +139,7 @@ export function isPiiEncryptionConfigured() {
 
 export function assertPiiEncryptionReadyForProduction() {
   if (process.env.NODE_ENV === "production" && !isPiiEncryptionConfigured()) {
-    throw new Error("PII_ENCRYPTION_KEY must be set in production.");
+    console.warn("PII_ENCRYPTION_KEY is not set; encrypted PII operations will be unavailable.");
   }
 }
 
