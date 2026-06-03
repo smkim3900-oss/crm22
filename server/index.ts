@@ -384,18 +384,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await ensureDatabasePerformanceObjects();
   await registerRoutes(httpServer, app);
-  
-  try {
-    if (shouldSeedOnBoot()) {
-      await seedDatabase();
-    } else {
-      log("database seed skipped on boot");
-    }
-  } catch (error) {
-    console.error("Error seeding database:", error);
-  }
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -438,6 +427,21 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+      void runPostListenStartupTasks();
     },
   );
 })();
+
+async function runPostListenStartupTasks() {
+  await ensureDatabasePerformanceObjects();
+
+  try {
+    if (shouldSeedOnBoot()) {
+      await seedDatabase();
+    } else {
+      log("database seed skipped on boot");
+    }
+  } catch (error) {
+    console.error("Error seeding database:", error);
+  }
+}
